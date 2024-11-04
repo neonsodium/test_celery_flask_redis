@@ -1,0 +1,60 @@
+1. Install Dependencies
+
+First, you’ll need to install Flask, Celery, and a message broker (like Redis). You can install these using pip:
+
+pip install Flask Celery redis
+
+brew install redis
+
+Make sure you have Redis installed and running, or you can use another broker supported by Celery.
+
+2. Create a Flask Application with Celery
+
+refer app.py
+
+Explanation of the Code
+
+	•	Flask Setup: A simple Flask app is created with two routes: one to start a task and another to check the status of the task.
+	•	Celery Configuration: The CELERY_BROKER_URL and CELERY_RESULT_BACKEND are configured to use Redis. Celery is initialized with the Flask app configuration.
+	•	Long-Running Task: The long_running_task simulates a long operation using time.sleep(). This function can be replaced with any task that takes time to complete.
+	•	Routes:
+	•	/start-task: Accepts a JSON payload with the number of seconds to simulate and starts the long-running task.
+	•	/task-status/<task_id>: Returns the status of the task along with the result if it’s complete.
+
+3. Running the Application
+
+	1.	Start Redis: Ensure that Redis is running. You can usually start it with the command:
+
+redis-server
+
+
+	2.	Run the Flask Application:
+
+python app.py
+
+
+	3.	Start the Celery Worker:
+Open another terminal and run:
+
+celery -A app.celery worker --loglevel=info
+
+This command tells Celery to use the app’s celery instance to start processing tasks.
+
+4. Testing the Application
+
+You can use a tool like curl or Postman to test the application.
+
+	•	Start a Task:
+
+curl -X POST http://127.0.0.1:5000/start-task -H "Content-Type: application/json" -d '{"seconds": 10}'
+
+This will start a task that takes 10 seconds to complete and will return a task_id.
+
+	•	Check Task Status:
+Use the task_id returned from the previous request to check the task’s status:
+
+curl http://127.0.0.1:5000/task-status/<task_id>
+
+Replace <task_id> with the actual task ID you received.
+
+
